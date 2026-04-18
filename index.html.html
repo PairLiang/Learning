@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>兒童閃卡 Flash Cards</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Helvetica Neue',Arial,sans-serif;background:#f0f4ff;min-height:100vh}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border-bottom:2px solid #e0e0f0;flex-shrink:0;position:sticky;top:0;z-index:10}
+.tab{padding:8px 4px;font-size:10.5px;font-weight:700;color:#888;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;text-align:center;transition:all .2s;overflow:hidden;text-overflow:ellipsis}
+.tab.active{color:#fff;border-bottom-color:transparent}
+.tab[data-cat="0"].active{background:#FF6B6B}
+.tab[data-cat="1"].active{background:#FF9F43}
+.tab[data-cat="2"].active{background:#A29BFE}
+.tab[data-cat="3"].active{background:#00B894}
+.tab[data-cat="4"].active{background:#4A90D9}
+.tab[data-cat="5"].active{background:#FF6B6B}
+.tab[data-cat="6"].active{background:#FF9F43}
+.tab[data-cat="7"].active{background:#A29BFE}
+.tab[data-cat="8"].active{background:#00B894}
+.tab[data-cat="9"].active{background:#4A90D9}
+.cards-area{flex:1;padding:12px;overflow-y:auto}
+.card-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.card{border-radius:20px;padding:14px 10px;text-align:center;cursor:pointer;position:relative;min-height:175px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,0.6);box-shadow:0 4px 15px rgba(0,0,0,0.1);transition:transform .15s;user-select:none}
+.card:active{transform:scale(0.96)}
+.card-emoji{font-size:50px;margin-bottom:5px;line-height:1}
+.card-zh{font-size:26px;font-weight:700;line-height:1.1;margin-bottom:2px;color:#222}
+.card-py{font-size:12px;color:#555;font-style:italic;margin-bottom:3px}
+.card-en{font-size:14px;font-weight:600;text-transform:capitalize;color:#333}
+.color-swatch{width:58px;height:58px;border-radius:50%;margin:0 auto 6px;border:3px solid rgba(0,0,0,0.12)}
+.num-badge{position:absolute;top:8px;left:10px;font-size:10px;font-weight:700;color:#fff;background:rgba(0,0,0,0.18);border-radius:20px;padding:1px 6px}
+.bg-animal{background:linear-gradient(135deg,#FFF3E0,#FFE0B2)}
+.bg-food{background:linear-gradient(135deg,#F3E5F5,#E1BEE7)}
+.bg-color-card{background:linear-gradient(135deg,#E8F5E9,#C8E6C9)}
+.bg-transport{background:linear-gradient(135deg,#E3F2FD,#BBDEFB)}
+.bg-items{background:linear-gradient(135deg,#FFF8E1,#FFECB3)}
+.story-area{flex:1;padding:12px;overflow-y:auto}
+.story-card{border-radius:18px;padding:18px;margin-bottom:12px;box-shadow:0 4px 15px rgba(0,0,0,0.08);border-left:6px solid #ccc}
+.story-word{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px;color:#fff}
+.story-zh{font-size:19px;font-weight:700;color:#222;line-height:1.5;margin-bottom:5px}
+.story-py{font-size:14px;color:#555;font-style:italic;margin-bottom:5px}
+.story-en{font-size:14px;color:#444;font-weight:500;margin-bottom:8px}
+.speak-btn{font-size:12px;padding:6px 14px;border:none;border-radius:20px;cursor:pointer;font-weight:700;letter-spacing:.3px}
+.intro-title{font-size:16px;font-weight:700;color:#fff;padding:10px 14px;border-radius:14px;display:inline-block;margin-bottom:4px}
+.intro-sub{font-size:13px;color:#666;margin-bottom:12px}
+.sc-animal{background:linear-gradient(135deg,#FFF0E8,#FFE4D6)}
+.sc-food{background:linear-gradient(135deg,#FFF5E0,#FFE8C2)}
+.sc-color{background:linear-gradient(135deg,#F0EEFF,#E2DAFF)}
+.sc-transport{background:linear-gradient(135deg,#E0FFF4,#C5F5E4)}
+.sc-items{background:linear-gradient(135deg,#E6F3FF,#CDE5FF)}
+.intro{padding:10px 12px;background:#fff;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.intro-bar-title{font-size:15px;font-weight:700;color:#333}
+.intro-count{font-size:11px;color:#aaa;font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="intro">
+  <span class="intro-bar-title">🌟 兒童閃卡 Flash Cards</span>
+  <span class="intro-count">50 cards · 5 themes</span>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-cat="0" onclick="showCat(0)">🐾 Animals</button>
+  <button class="tab" data-cat="1" onclick="showCat(1)">🍎 Food</button>
+  <button class="tab" data-cat="2" onclick="showCat(2)">🎨 Colors</button>
+  <button class="tab" data-cat="3" onclick="showCat(3)">🚗 Transport</button>
+  <button class="tab" data-cat="4" onclick="showCat(4)">📚 Daily Items</button>
+  <button class="tab" data-cat="5" onclick="showCat(5)">🐾 Animal Story</button>
+  <button class="tab" data-cat="6" onclick="showCat(6)">🍽️ Food Story</button>
+  <button class="tab" data-cat="7" onclick="showCat(7)">🌈 Color Story</button>
+  <button class="tab" data-cat="8" onclick="showCat(8)">🚌 Transport Story</button>
+  <button class="tab" data-cat="9" onclick="showCat(9)">🎒 Items Story</button>
+</div>
+<div id="content" style="flex:1;overflow-y:auto"></div>
+</div>
+
+<script>
+const cards = [
+  {cat:0,bg:'bg-animal',emoji:'🐱',zh:'貓',py:'māo',en:'cat',num:1},
+  {cat:0,bg:'bg-animal',emoji:'🐶',zh:'狗',py:'gǒu',en:'dog',num:2},
+  {cat:0,bg:'bg-animal',emoji:'🐦',zh:'鳥',py:'niǎo',en:'bird',num:3},
+  {cat:0,bg:'bg-animal',emoji:'🐟',zh:'魚',py:'yú',en:'fish',num:4},
+  {cat:0,bg:'bg-animal',emoji:'🐰',zh:'兔子',py:'tù zi',en:'rabbit',num:5},
+  {cat:0,bg:'bg-animal',emoji:'🦆',zh:'鴨子',py:'yā zi',en:'duck',num:6},
+  {cat:0,bg:'bg-animal',emoji:'🐄',zh:'牛',py:'niú',en:'cow',num:7},
+  {cat:0,bg:'bg-animal',emoji:'🐴',zh:'馬',py:'mǎ',en:'horse',num:8},
+  {cat:0,bg:'bg-animal',emoji:'🐷',zh:'豬',py:'zhū',en:'pig',num:9},
+  {cat:0,bg:'bg-animal',emoji:'🐒',zh:'猴子',py:'hóu zi',en:'monkey',num:10},
+  {cat:1,bg:'bg-food',emoji:'🍎',zh:'蘋果',py:'píng guǒ',en:'apple',num:11},
+  {cat:1,bg:'bg-food',emoji:'🍌',zh:'香蕉',py:'xiāng jiāo',en:'banana',num:12},
+  {cat:1,bg:'bg-food',emoji:'🍊',zh:'橘子',py:'jú zi',en:'orange',num:13},
+  {cat:1,bg:'bg-food',emoji:'🍉',zh:'西瓜',py:'xī guā',en:'watermelon',num:14},
+  {cat:1,bg:'bg-food',emoji:'🍞',zh:'麵包',py:'miàn bāo',en:'bread',num:15},
+  {cat:1,bg:'bg-food',emoji:'🍚',zh:'米飯',py:'mǐ fàn',en:'rice',num:16},
+  {cat:1,bg:'bg-food',emoji:'🥛',zh:'牛奶',py:'niú nǎi',en:'milk',num:17},
+  {cat:1,bg:'bg-food',emoji:'🥚',zh:'蛋',py:'dàn',en:'egg',num:18},
+  {cat:1,bg:'bg-food',emoji:'🎂',zh:'蛋糕',py:'dàn gāo',en:'cake',num:19},
+  {cat:1,bg:'bg-food',emoji:'🍪',zh:'餅乾',py:'bǐng gān',en:'cookie',num:20},
+  {cat:2,bg:'bg-color-card',swatch:'#E53935',zh:'紅色',py:'hóng sè',en:'red',num:21},
+  {cat:2,bg:'bg-color-card',swatch:'#1E88E5',zh:'藍色',py:'lán sè',en:'blue',num:22},
+  {cat:2,bg:'bg-color-card',swatch:'#FDD835',zh:'黃色',py:'huáng sè',en:'yellow',num:23},
+  {cat:2,bg:'bg-color-card',swatch:'#43A047',zh:'綠色',py:'lǜ sè',en:'green',num:24},
+  {cat:2,bg:'bg-color-card',swatch:'#FB8C00',zh:'橘色',py:'jú sè',en:'orange',num:25},
+  {cat:2,bg:'bg-color-card',swatch:'#8E24AA',zh:'紫色',py:'zǐ sè',en:'purple',num:26},
+  {cat:2,bg:'bg-color-card',swatch:'#E91E8C',zh:'粉紅色',py:'fěn hóng sè',en:'pink',num:27},
+  {cat:2,bg:'bg-color-card',swatch:'#212121',zh:'黑色',py:'hēi sè',en:'black',num:28},
+  {cat:2,bg:'bg-color-card',swatch:null,emoji:'☁️',zh:'白色',py:'bái sè',en:'white',num:29},
+  {cat:2,bg:'bg-color-card',swatch:'#6D4C41',zh:'棕色',py:'zōng sè',en:'brown',num:30},
+  {cat:3,bg:'bg-transport',emoji:'🚗',zh:'汽車',py:'qì chē',en:'car',num:31},
+  {cat:3,bg:'bg-transport',emoji:'🚌',zh:'公車',py:'gōng chē',en:'bus',num:32},
+  {cat:3,bg:'bg-transport',emoji:'🚂',zh:'火車',py:'huǒ chē',en:'train',num:33},
+  {cat:3,bg:'bg-transport',emoji:'✈️',zh:'飛機',py:'fēi jī',en:'airplane',num:34},
+  {cat:3,bg:'bg-transport',emoji:'⛵',zh:'船',py:'chuán',en:'boat',num:35},
+  {cat:3,bg:'bg-transport',emoji:'🚲',zh:'腳踏車',py:'jiǎo tà chē',en:'bike',num:36},
+  {cat:3,bg:'bg-transport',emoji:'🚛',zh:'卡車',py:'kǎ chē',en:'truck',num:37},
+  {cat:3,bg:'bg-transport',emoji:'🚕',zh:'計程車',py:'jì chéng chē',en:'taxi',num:38},
+  {cat:3,bg:'bg-transport',emoji:'🚇',zh:'地鐵',py:'dì tiě',en:'subway',num:39},
+  {cat:3,bg:'bg-transport',emoji:'🚁',zh:'直升機',py:'zhí shēng jī',en:'helicopter',num:40},
+  {cat:4,bg:'bg-items',emoji:'📖',zh:'書',py:'shū',en:'book',num:41},
+  {cat:4,bg:'bg-items',emoji:'🪑',zh:'椅子',py:'yǐ zi',en:'chair',num:42},
+  {cat:4,bg:'bg-items',emoji:'🛋️',zh:'桌子',py:'zhuō zi',en:'table',num:43},
+  {cat:4,bg:'bg-items',emoji:'☕',zh:'杯子',py:'bēi zi',en:'cup',num:44},
+  {cat:4,bg:'bg-items',emoji:'🥄',zh:'湯匙',py:'tāng chí',en:'spoon',num:45},
+  {cat:4,bg:'bg-items',emoji:'TOOTHBRUSH',zh:'牙刷',py:'yá shuā',en:'toothbrush',num:46},
+  {cat:4,bg:'bg-items',emoji:'🎒',zh:'書包',py:'shū bāo',en:'bag',num:47},
+  {cat:4,bg:'bg-items',emoji:'🛏️',zh:'床',py:'chuáng',en:'bed',num:48},
+  {cat:4,bg:'bg-items',emoji:'👟',zh:'鞋子',py:'xié zi',en:'shoes',num:49},
+  {cat:4,bg:'bg-items',emoji:'✏️',zh:'鉛筆',py:'qiān bǐ',en:'pencil',num:50},
+];
+
+const stories = [
+  {cat:5,bgCls:'sc-animal',color:'#FF6B6B',title:'🐾 動物園之旅',intro:'今天我們去動物園！',sentences:[
+    {zh:'我看見一隻貓在睡覺。',py:'Wǒ kàn jiàn yī zhī māo zài shuì jiào.',en:'I saw a cat sleeping.'},
+    {zh:'那隻狗正在跑步。',py:'Nà zhī gǒu zhèng zài pǎo bù.',en:'That dog is running.'},
+    {zh:'一隻鳥在天上飛。',py:'Yī zhī niǎo zài tiān shàng fēi.',en:'A bird is flying in the sky.'},
+    {zh:'魚在水裡游泳。',py:'Yú zài shuǐ lǐ yóu yǒng.',en:'Fish are swimming in the water.'},
+    {zh:'白色的兔子好可愛！',py:'Bái sè de tù zi hǎo kě ài!',en:'The white rabbit is so cute!'},
+    {zh:'鴨子在湖裡游泳。',py:'Yā zi zài hú lǐ yóu yǒng.',en:'The duck is swimming in the lake.'},
+    {zh:'牛在草地上吃草。',py:'Niú zài cǎo dì shàng chī cǎo.',en:'The cow is eating grass on the field.'},
+    {zh:'馬跑得非常快。',py:'Mǎ pǎo de fēi cháng kuài.',en:'The horse runs very fast.'},
+    {zh:'豬在泥巴裡打滾。',py:'Zhū zài ní bā lǐ dǎ gǔn.',en:'The pig is rolling in the mud.'},
+    {zh:'猴子爬上了大樹！',py:'Hóu zi pá shàng le dà shù!',en:'The monkey climbed up the big tree!'},
+  ]},
+  {cat:6,bgCls:'sc-food',color:'#FF9F43',title:'🍳 媽媽的廚房',intro:'媽媽今天煮了好多好吃的！',sentences:[
+    {zh:'桌上有一個紅蘋果。',py:'Zhuō shàng yǒu yī gè hóng píng guǒ.',en:'There is a red apple on the table.'},
+    {zh:'我喜歡吃香蕉當點心。',py:'Wǒ xǐ huān chī xiāng jiāo dāng diǎn xīn.',en:'I like eating bananas as a snack.'},
+    {zh:'媽媽買了很多橘子。',py:'Māma mǎi le hěn duō jú zi.',en:'Mom bought a lot of oranges.'},
+    {zh:'夏天吃西瓜最好吃！',py:'Xià tiān chī xī guā zuì hǎo chī!',en:'Watermelon tastes best in summer!'},
+    {zh:'早餐我吃了麵包。',py:'Zǎo cān wǒ chī le miàn bāo.',en:'I ate bread for breakfast.'},
+    {zh:'奶奶煮了香噴噴的米飯。',py:'Nǎi nai zhǔ le xiāng pēn pēn de mǐ fàn.',en:'Grandma cooked fragrant rice.'},
+    {zh:'我每天早上喝牛奶。',py:'Wǒ měi tiān zǎo shàng hē niú nǎi.',en:'I drink milk every morning.'},
+    {zh:'媽媽炒了一個蛋給我吃。',py:'Māma chǎo le yī gè dàn gěi wǒ chī.',en:'Mom cooked an egg for me.'},
+    {zh:'今天是我的生日，我要吃蛋糕！',py:'Jīn tiān shì wǒ de shēng rì, wǒ yào chī dàn gāo!',en:'Today is my birthday and I want to eat cake!'},
+    {zh:'餅乾好香，我想再多吃一塊。',py:'Bǐng gān hǎo xiāng, wǒ xiǎng zài duō chī yī kuài.',en:'The cookies smell so good, I want one more piece.'},
+  ]},
+  {cat:7,bgCls:'sc-color',color:'#7C6FE0',title:'🌈 彩虹的顏色',intro:'今天我們學彩虹的顏色！',sentences:[
+    {zh:'我畫了一朵紅色的花。',py:'Wǒ huà le yī duǒ hóng sè de huā.',en:'I drew a red flower.'},
+    {zh:'天空是藍色的。',py:'Tiān kōng shì lán sè de.',en:'The sky is blue.'},
+    {zh:'太陽是黃色的。',py:'Tài yáng shì huáng sè de.',en:'The sun is yellow.'},
+    {zh:'青蛙是綠色的。',py:'Qīng wā shì lǜ sè de.',en:'The frog is green.'},
+    {zh:'橘子是橘色的。',py:'Jú zi shì jú sè de.',en:'The orange is orange.'},
+    {zh:'葡萄是紫色的。',py:'Pú táo shì zǐ sè de.',en:'The grapes are purple.'},
+    {zh:'我的帽子是粉紅色的。',py:'Wǒ de mào zi shì fěn hóng sè de.',en:'My hat is pink.'},
+    {zh:'貓咪的眼睛是黑色的。',py:'Māo mī de yǎn jīng shì hēi sè de.',en:'The kitten\'s eyes are black.'},
+    {zh:'雪是白色的，好漂亮！',py:'Xuě shì bái sè de, hǎo piào liang!',en:'Snow is white, so beautiful!'},
+    {zh:'熊貓喜歡棕色的樹幹。',py:'Xióng māo xǐ huān zōng sè de shù gàn.',en:'The panda likes brown tree trunks.'},
+  ]},
+  {cat:8,bgCls:'sc-transport',color:'#00B894',title:'🗺️ 開心出遊去',intro:'今天全家一起出遊！',sentences:[
+    {zh:'爸爸開汽車帶我去公園。',py:'Bàba kāi qì chē dài wǒ qù gōng yuán.',en:'Dad drives the car to the park.'},
+    {zh:'我們坐公車去學校。',py:'Wǒ men zuò gōng chē qù xué xiào.',en:'We take the bus to school.'},
+    {zh:'火車跑得很快，嗚嗚嗚！',py:'Huǒ chē pǎo de hěn kuài, wū wū wū!',en:'The train goes fast, choo choo!'},
+    {zh:'我們坐飛機去旅行。',py:'Wǒ men zuò fēi jī qù lǚ xíng.',en:'We take an airplane to travel.'},
+    {zh:'爺爺坐船去釣魚。',py:'Yé yé zuò chuán qù diào yú.',en:'Grandpa takes a boat to fish.'},
+    {zh:'我騎腳踏車去買東西。',py:'Wǒ qí jiǎo tà chē qù mǎi dōng xi.',en:'I ride my bike to the shop.'},
+    {zh:'大卡車裝了好多東西。',py:'Dà kǎ chē zhuāng le hǎo duō dōng xi.',en:'The big truck is full of things.'},
+    {zh:'計程車很快把我送到家。',py:'Jì chéng chē hěn kuài bǎ wǒ sòng dào jiā.',en:'The taxi took me home quickly.'},
+    {zh:'地鐵在地下跑，好神奇！',py:'Dì tiě zài dì xià pǎo, hǎo shén qí!',en:'The subway runs underground, amazing!'},
+    {zh:'直升機在天空盤旋飛翔。',py:'Zhí shēng jī zài tiān kōng pán xuán fēi xiáng.',en:'The helicopter circles in the sky.'},
+  ]},
+  {cat:9,bgCls:'sc-items',color:'#4A90D9',title:'📚 我的書房',intro:'這是我的房間，裡面有很多東西！',sentences:[
+    {zh:'我的書包裡有很多書。',py:'Wǒ de shū bāo lǐ yǒu hěn duō shū.',en:'My bag has many books in it.'},
+    {zh:'我坐在椅子上寫作業。',py:'Wǒ zuò zài yǐ zi shàng xiě zuò yè.',en:'I sit on the chair to do homework.'},
+    {zh:'桌子上放著我的書本。',py:'Zhuō zi shàng fàng zhe wǒ de shū běn.',en:'My books are on the table.'},
+    {zh:'我用杯子喝水喝果汁。',py:'Wǒ yòng bēi zi hē shuǐ hē guǒ zhī.',en:'I drink water and juice with my cup.'},
+    {zh:'媽媽用湯匙幫我喝湯。',py:'Māma yòng tāng chí bāng wǒ hē tāng.',en:'Mom helps me drink soup with a spoon.'},
+    {zh:'早上起床要刷牙！',py:'Zǎo shàng qǐ chuáng yào shuā yá!',en:'Brush your teeth in the morning!'},
+    {zh:'上學前要背好書包。',py:'Shàng xué qián yào bēi hǎo shū bāo.',en:'Put on your bag before going to school.'},
+    {zh:'晚上我睡在軟軟的床上。',py:'Wǎn shàng wǒ shuì zài ruǎn ruǎn de chuáng shàng.',en:'I sleep on my soft bed at night.'},
+    {zh:'出門前記得穿好鞋子！',py:'Chū mén qián jì de chuān hǎo xié zi!',en:'Remember to put on shoes before going out!'},
+    {zh:'我用鉛筆畫了一幅畫。',py:'Wǒ yòng qiān bǐ huà le yī fú huà.',en:'I drew a picture with my pencil.'},
+  ]},
+];
+
+const TOOTHBRUSH_SVG = `<svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="24" y="3" width="9" height="32" rx="4.5" fill="#4FC3F7"/><rect x="25" y="3" width="5" height="15" rx="2.5" fill="#fff" opacity=".45"/><rect x="21" y="33" width="14" height="7" rx="3.5" fill="#81D4FA"/><rect x="19" y="38" width="18" height="13" rx="4" fill="#29B6F6"/><rect x="22" y="40" width="3" height="9" rx="1.5" fill="#fff" opacity=".7"/><rect x="27" y="40" width="3" height="9" rx="1.5" fill="#fff" opacity=".7"/><rect x="32" y="40" width="3" height="9" rx="1.5" fill="#fff" opacity=".7"/></svg>`;
+
+let voices = [];
+function loadVoices() { voices = window.speechSynthesis.getVoices(); }
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+}
+function getBestVoice(lang) {
+  const preferred = lang === 'zh' ? ['zh-TW','zh-HK','zh-CN','zh'] : ['en-US','en-GB','en-AU','en'];
+  for (const p of preferred) { const v = voices.find(x => x.lang.startsWith(p)); if (v) return v; }
+  return null;
+}
+function speakSlow(text, lang, onEnd) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang === 'zh' ? 'zh-TW' : 'en-US';
+  u.rate = 0.72; u.pitch = 1.15;
+  const v = getBestVoice(lang); if (v) u.voice = v;
+  if (onEnd) u.onend = onEnd;
+  window.speechSynthesis.speak(u);
+}
+function speakCard(zh, en) {
+  speakSlow(zh, 'zh', () => setTimeout(() => speakSlow(en, 'en'), 400));
+}
+function speakSen(zh, en) {
+  speakSlow(zh, 'zh', () => setTimeout(() => speakSlow(en, 'en'), 600));
+}
+
+function showCat(n) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[data-cat="${n}"]`).classList.add('active');
+  const el = document.getElementById('content');
+  window.speechSynthesis && window.speechSynthesis.cancel();
+
+  if (n < 5) {
+    const group = cards.filter(c => c.cat === n);
+    let html = '<div class="cards-area"><div class="card-grid">';
+    group.forEach(c => {
+      let inner;
+      if (c.swatch) {
+        inner = `<div class="color-swatch" style="background:${c.swatch}"></div>`;
+      } else if (c.emoji === 'TOOTHBRUSH') {
+        inner = `<div style="margin-bottom:5px">${TOOTHBRUSH_SVG}</div>`;
+      } else if (!c.emoji) {
+        inner = `<div class="card-emoji">${c.emoji||'☁️'}</div>`;
+      } else {
+        inner = `<div class="card-emoji">${c.emoji}</div>`;
+      }
+      html += `<div class="card ${c.bg}" onclick="speakCard('${c.zh}','${c.en}')">
+        <span class="num-badge">#${c.num}</span>
+        ${inner}
+        <div class="card-zh">${c.zh}</div>
+        <div class="card-py">${c.py}</div>
+        <div class="card-en">${c.en}</div>
+      </div>`;
+    });
+    html += '</div></div>';
+    el.innerHTML = html;
+  } else {
+    const s = stories[n - 5];
+    const wordList = cards.filter(c => c.cat === n - 5);
+    let html = `<div class="story-area">
+      <div style="text-align:center;padding:10px 0 14px">
+        <div class="intro-title" style="background:${s.color}">${s.title}</div>
+        <div class="intro-sub">${s.intro}</div>
+      </div>`;
+    s.sentences.forEach((sen, i) => {
+      const w = wordList[i];
+      const ico = w.swatch
+        ? `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${w.swatch};vertical-align:middle;margin-right:4px;border:1px solid rgba(0,0,0,0.15)"></span>`
+        : w.emoji === 'TOOTHBRUSH' ? '🪥 ' : `${w.emoji} `;
+      const zhSafe = sen.zh.replace(/'/g,"\\'");
+      const enSafe = sen.en.replace(/'/g,"\\'");
+      html += `<div class="story-card ${s.bgCls}" style="border-left-color:${s.color}">
+        <span class="story-word" style="background:${s.color}">${ico}${w.zh} · ${w.en}</span>
+        <div class="story-zh">${sen.zh}</div>
+        <div class="story-py">${sen.py}</div>
+        <div class="story-en">${sen.en}</div>
+        <button class="speak-btn" style="background:${s.color};color:#fff" onclick="speakSen('${zhSafe}','${enSafe}')">🔊 聽一聽 Listen</button>
+      </div>`;
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+}
+
+showCat(0);
+</script>
+</body>
+</html>
